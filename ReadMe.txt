@@ -1,57 +1,68 @@
-# 🩺 Design and Performance Evaluation of Blockchain Implemented Policy-Based Access Control (PBAC) for Medical Data Sharing
+# Design and Performance Evaluation of Blockchain-Enabled Policy-Based Access Control (PBAC) for Medical Data Sharing
 
-This repository contains the implementation artifacts, smart contracts, configurations, and deployment scripts for the proposed **Policy-Based Access Control (PBAC)** system, integrated with a **Dynamic Consent Management System (DCMS)** using **Hyperledger Besu blockchain**.  
-The project supports the research paper:
+This repository contains the implementation of a blockchain-enabled Policy-Based Access Control (PBAC) framework integrated with a Dynamic Consent Management System (DCMS) for secure medical data sharing. The framework combines Hyperledger Besu, Solidity smart contracts, InterPlanetary File System (IPFS), and Python-based automation to provide secure, transparent, and patient-centric access control for electronic health records.
 
-> **Design and Performance Evaluation of Blockchain Implemented Policy-Based Access Control for Medical Data Sharing**  
-> *Author:* Nadeem Yaqub  
-> *Year:* 2025  
-> *(Under submission to Internet of Things Elsevier)*
+The implementation supports the research paper:
 
----
+Design and Performance Evaluation of Blockchain-Enabled Policy-Based Access Control for Medical Data Sharing
 
-## 🔍 Overview
+--------------------------------------------------------------------------------
 
-The PBAC–DCMS framework enables secure, transparent, and GDPR-compliant access control for electronic health records (EHRs).  
-It ensures that patients retain full authority over:
-- **Who** accesses their data (role-based),
-- **When** and **for how long** access is valid,
-- **Why** access is requested (purpose-based),
-- and **What** level of data access is granted (granularity).
+Project Overview
 
-Smart contracts enforce these rules dynamically, providing **immutability**, **auditability**, and **privacy-by-design** in healthcare environments.
+The proposed framework enables secure medical data sharing by combining permissioned blockchain technology with off-chain storage.
 
----
+Patient medical records are stored securely in IPFS, while only the corresponding IPFS Content Identifier (CID), cryptographic hash, and policy metadata are stored on the blockchain. This hybrid architecture reduces blockchain storage requirements while preserving data integrity through hash verification.
 
-## System Model
+The framework allows patients to define dynamic consent policies specifying:
 
-![PBAC Flow](figs/pbac_flow.png)
+• Authorized requester
+• Access purpose
+• Access duration
+• Access level (Full or Partial)
+• Consent status
 
-The proposed model includes three core entities:
-- **Patient** – Registers data, defines policies, and grants consent.  
-- **Controller** – Manages policy validation, access verification, and logging.  
-- **Requester** – Requests data based on consent and policy rules.  
+Smart contracts automatically evaluate every access request and generate a Granted, Partial Granted, Pending, or Denied decision according to the active policy.
 
-Each transaction — patient registration, policy creation, access request, and validation — is recorded immutably on the blockchain ledger.
+The framework was evaluated using three Hyperledger Besu consensus mechanisms:
 
----
+• QBFT (Quick Byzantine Fault Tolerance)
+• IBFT2 (Istanbul Byzantine Fault Tolerance)
+• Clique (Proof of Authority)
 
-## System Architecture
+--------------------------------------------------------------------------------
 
-The implementation consists of three interconnected layers:
+Repository Structure
 
-1. **Entity Layer:** Defines patient, controller, and requester roles.  
-2. **Application Layer:** Manages policy registration, consent management, and access control through Solidity-based smart contracts.  
-3. **Blockchain Layer:** Hyperledger Besu permissioned network with validators ensuring consensus and immutability.
+contracts/
+    myallcontracts.sol
 
-Consensus protocols tested:
-- **QBFT (Quick Byzantine Fault Tolerance)**  
-- **IBFT2 (Istanbul Byzantine Fault Tolerance)**  
-- **Clique (Proof-of-Authority)**
+QBFT/
+IBFT2/
+Clique/
 
----
+    docker-compose.yml
+    pbac_core.py
+    t_cases.py
+    d_cases.py
+    e_cases.py
+    Web3.py
+    config/
+    quorum-explorer/
 
-## Prerequisites
+benchmarking/
+
+    latency.py
+    tps.py
+    time.py
+    all.py
+
+Each consensus directory contains the complete blockchain configuration together with the Python implementation required to execute the PBAC experiments.
+
+--------------------------------------------------------------------------------
+
+Software Requirements
+
 
 Before running the implementation, ensure the following are installed:
 
@@ -67,7 +78,6 @@ Before running the implementation, ensure the following are installed:
 | **Solidity Compiler** | v0.8.30 | Smart contract language |
 | **VS Code / Remix IDE** | Latest | Development IDEs |
 
----
 
 ## Tools and Frameworks
 
@@ -76,106 +86,184 @@ Before running the implementation, ensure the following are installed:
 - [**Web3.py**](https://web3py.readthedocs.io/) – Python blockchain interaction library  
 - [**Docker & Besu**](https://besu.hyperledger.org/) – Permissioned blockchain setup  
 - [**Quorum Explorer**](https://consensys.net/quorum/tools/) – Transaction and node monitoring  
+--------------------------------------------------------------------------------
 
----
+Implementation Procedure
 
-***** Implementation Procedure *****
+Step 1. Install Dependencies
 
-### Step 1: System Configuration  ###
+sudo apt update
 
-	We ensured that the server is properly configured with all required dependencies:
+sudo apt install docker.io docker-compose openjdk-21-jdk python3-pip -y
 
-By using bash
+Install the required Python packages.
 
-# Update package lists and install necessary dependencies
-	sudo apt update && sudo apt install openjdk-21-jdk python3-pip docker.io docker-compose -y
+pip install web3 pandas numpy requests cryptography psutil openpyxl
 
+--------------------------------------------------------------------------------
 
-#Install additional Python packages for Web3 integration
-	pip3 install web3
+Step 2. Start the IPFS Service
 
-### Step 2: Initialize Besu Network  ###
-# Start the Besu network
-	docker-compose up -d
+Start the local IPFS daemon.
 
-# Verified that all services are up
-	docker-compose ps
-	docker ps -a
+ipfs daemon
 
-# Check the logs to ensure everything is running smoothly
-	docker logs -f validator's  # Follow logs for validator's 
-	docker logs -f rpc-node    
+Verify that the IPFS API is available on:
 
-# Check the Blockchain Status: (Can verify each consensus with different commands)
-	curl -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' http://localhost:8545
-	This will return the current block number, confirming if nodes are syncing correctly.
+http://localhost:5001
 
-### Step 3: Deploy Smart Contracts ###
+--------------------------------------------------------------------------------
 
-# Open Remix IDE:
+Step 3. Start the Hyperledger Besu Network
 
-	Go to Remix IDE, an online IDE (https://remix.ethereum.org/) for Solidity smart contract development.
+Navigate to the selected consensus directory (QBFT, IBFT2, or Clique) and execute
 
-# Configure Remix IDE to Connect to Besu Network:
+docker-compose up -d
 
-	Connect Remix IDE to your Besu network using Injected Web3 via MetaMask. Make sure MetaMask is configured to connect to http://localhost:8545.
+Verify the containers
 
-# Copy ABI Code & Update JSON File:
+docker ps
 
-	Compile the contract in Remix, copy the ABI code, and paste it into the appropriate .json configuration file for contract interaction in the Python scripts.
+Check blockchain status
 
-# Load Smart Contracts:
+curl -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' http://localhost:8545
 
-	Import the smart contract files from the /contracts/ directory in this repository.
+--------------------------------------------------------------------------------
 
-	Select Solidity v0.8.30 as the compiler version.
+Step 4. Deploy the Smart Contract
 
-# Deploy via Injected Provider (MetaMask):
+Open Remix IDE.
 
-	Ensure MetaMask is connected to your local Besu node via HTTP provider (http://localhost:8545).
+Import
 
-	Deploy the contract using Injected Web3 (via MetaMask). Note the deployed contract address.
+contracts/myallcontracts.sol
 
+Compile using Solidity version 0.8.30.
 
-### Step 4: Test Cases   ###
+Connect MetaMask to the local Besu RPC endpoint.
 
-Test	Policy Type	Consent	Access Level	Purpose	Expected Outcome
-1	Normal	True	Full	Treatment	Granted
-2	Normal	True	Partial	Checkup	Partial Granted
-3	Normal	False	None	Audit	        Denied
-4	Normal	False	Full	Lab Results	Pending
+Deploy the contract.
 
+Copy the deployed contract address and ABI.
 
-###  Step 5: Configure and Deploy the Network in Python Scripts  ###
+Update the ABI file and contract address used by pbac_core.py.
 
-Update Contract Address:
+--------------------------------------------------------------------------------
 
-	Paste the deployed contract address into the Python benchmark script to ensure it interacts with the correct deployed contract.
+Step 5. Configure the Python Framework
 
-	Configure Network with Accounts and Ethers:
+Update:
 
-	Add test accounts in Remix IDE with ETH balances and configure them to be used in the benchmark scripts (test accounts should have Ethers for interaction).
+• Contract address
 
-Run the Benchmarking Scripts:
+• ABI file
 
-	Execute the benchmarking scripts to evaluate the system's performance:
+• Dataset location
 
-### Step 6: Run Benchmark Tests ###
+• Consent file
 
-Execute benchmarking scripts from the /scripts/ directory:
+• IPFS API endpoint
 
-	python3 benchmark_latency.py
-	python3 benchmark_tps.py
-	python3 benchmark_time.py
-	python3 benchmark_resources.py
+• Besu RPC endpoint
 
+The implementation automatically reads patient records, uploads encrypted or plaintext records to IPFS, registers patient metadata on-chain, creates access-control policies, and evaluates access requests.
 
-### Step 6:Validation and Monitoring  ###
+--------------------------------------------------------------------------------
 
-Monitor Node Logs:
-	docker logs -f validator's    # Monitor logs for validator's node
-	docker logs -f rpc-node      # Monitor logs for RPC node
+Step 6. Execute Experimental Scenarios
 
-Monitor Transactions:
-	http://localhost:25000/explorer/explorer
+The implementation provides three experimental scenarios.
 
+t_cases.py
+
+Normal Policy Lifecycle
+
+Includes consent creation, consent withdrawal, consent restoration, policy revocation, policy expiry, purpose mismatch, access-level mismatch, and replay request testing.
+
+d_cases.py
+
+Delegate Authorization
+
+Evaluates delegated policy creation, delegated consent management, unauthorized delegate requests, and policy revocation.
+
+e_cases.py
+
+Emergency Authorization
+
+Evaluates emergency policy creation, emergency access, incorrect emergency purpose, policy expiry, and emergency policy revocation.
+
+--------------------------------------------------------------------------------
+
+Step 7. Benchmarking
+
+Performance evaluation can be performed using
+
+python latency.py
+
+python tps.py
+
+python time.py
+
+python all.py
+
+The benchmarking framework measures
+
+• Transaction latency
+
+• Workflow throughput (TPS)
+
+• Gas consumption
+
+• CPU utilization
+
+• Memory usage
+
+• IPFS latency
+
+--------------------------------------------------------------------------------
+
+Monitoring
+
+The blockchain network can be monitored using
+
+Quorum Explorer
+
+http://localhost:25000
+
+Grafana
+
+http://localhost:3000
+
+Prometheus
+
+http://localhost:9090
+
+--------------------------------------------------------------------------------
+
+Implementation Workflow
+
+1. Deploy the Besu network.
+
+2. Start the IPFS daemon.
+
+3. Deploy the PBAC smart contract.
+
+4. Configure the contract address and ABI.
+
+5. Upload patient records to IPFS.
+
+6. Store the corresponding CID and cryptographic hash on-chain.
+
+7. Create consent and access-control policies.
+
+8. Execute Normal, Delegate, or Emergency authorization scenarios.
+
+9. Evaluate access requests.
+
+10. Measure system performance using the benchmarking scripts.
+
+--------------------------------------------------------------------------------
+
+License
+
+This repository accompanies the research implementation of the PBAC framework for secure medical data sharing and is intended for academic and research purposes.
