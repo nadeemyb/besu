@@ -9,6 +9,7 @@ Development Tools
 •	Python 3.10+ with pip: for backend scripting and Web3 integration
 •	Web3.py: Python library for Ethereum node interaction
 •	Web3.js: JavaScript library for DApp development
+•       IPFS (Kubo): Distributed off-chain storage for encrypted and plaintext patient medical records.
 
 Blockchain Components
 •	Hyperledger Besu (v23.7+ / v25.8.0): Ethereum-compatible client for permissioned blockchain
@@ -16,25 +17,28 @@ Blockchain Components
 •	Genesis Block Configuration: defines initial state, accounts, and consensus protocol parameters
 •	Consensus Algorithms Implemented: QBFT, IBFT2, and Clique (evaluated individually)
 •	Quorum Explorer: used for node and transaction monitoring
+•  InterPlanetary File System (IPFS): Stores patient medical records off-chain while blockchain stores only the corresponding CID and cryptographic hash.
 
 Testing and Benchmarking Tools
 •	Testing
-•	Web3.py / Python scripts for smart contract invocation
+•	Web3.py / Python automation scripts for patient registration, policy creation, consent management, IPFS interaction, blockchain transactions, and benchmarking.
 •	Curl for JSON-RPC testing and validation
 •	Benchmarking
 •	Python-based performance scripts for measuring latency, throughput, gas usage, CPU, and memory utilization
 
 Implementation Workflow
-a. Configure Ubuntu server (network, firewall, dependencies)
-b. Install OpenJDK (v17 or 21) and configure JVM parameters
-c. Install Hyperledger Besu and required dependencies
-d. Configure system services and node environment
-e. Generate Genesis Block and define initial allocations
-f. Configure and launch separate modules for each consensus (QBFT, IBFT2, Clique)
-g. Pre-allocate test accounts with ETH for transactions
-h. Deploy blockchain nodes using Docker Compose
-i. Develop and compile Solidity contracts in Remix IDE
-j. Deploy contracts via external HTTP provider (MetaMask or Web3.py)
-k. Integrate contracts into Besu blockchain environment
-l. Monitor performance and transaction logs through Quorum Explorer
+a. Configure Ubuntu Server and install required dependencies.
+b. Install Docker, Docker Compose, OpenJDK, Python, and Hyperledger Besu.
+c. Install and initialize the local IPFS daemon.
+d. Configure the permissioned blockchain network and consensus protocol (QBFT, IBFT2, or Clique).
+e. Generate the genesis block and initialize validator nodes.
+f. Deploy blockchain nodes using Docker Compose.
+g. Deploy the PBAC smart contract through Remix IDE using MetaMask.
+h. Update the deployed contract address and ABI in the Python configuration.
+i. Import patient datasets and consent information.
+j. Upload patient medical records to IPFS and generate the corresponding CIDs and cryptographic hashes.
+k. Register patient metadata and IPFS references on the blockchain.
+l. Execute Normal, Delegate, and Emergency authorization scenarios.
+m. Evaluate access requests and retrieve authorized records from IPFS after blockchain verification.
+n. Monitor blockchain transactions and system performance using Quorum Explorer and the benchmarking scripts.
 
